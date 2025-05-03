@@ -240,8 +240,8 @@ function double_jump.globalstep(dtime)
         local node = minetest.get_node_or_nil(vector.new(pos.x, pos.y - 0.1, pos.z))
         local node_under = is_node_under_player(player)
 
-        if minetest.check_player_privs(player, { double_jump = true }) == false then
-            return
+        if not privs.double_jump then
+            goto continue
         end
 
         -- Is the player flying? If so, don't allow the player to double+ jump.
@@ -249,7 +249,7 @@ function double_jump.globalstep(dtime)
             (minetest.is_singleplayer() and minetest.settings:get_bool("free_move")) and privs.fly then
 
             double_jump.reset(player)
-            return
+            goto continue
         end
 
         -- Is the player underwater? If so, we shouldn't trigger the double+ jump.
@@ -257,7 +257,7 @@ function double_jump.globalstep(dtime)
 
         if node_def and (node_def.drawtype == "liquid" or node_def.drawtype == "flowingliquid") then
             double_jump.reset(player, true)
-            return
+            goto continue
         end
 
         -- A jump boost happens if the player jumped normally, falls on a block and
@@ -265,10 +265,11 @@ function double_jump.globalstep(dtime)
         local vel = get_vel(player)
         if vel.y >= math.floor(2) or vel.y == math.floor(0) then
             double_jump.reset(player)
-            return
+            goto continue
         end
 
         double_jump.jump(player, jump_height)
+        ::continue::
     end
 end
 
